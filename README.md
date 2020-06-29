@@ -1,2 +1,2 @@
-# A01208905-GraficasComputacionales
+# A01208905 Daniel Elias Becerra
 Learning Computer Graphics!
