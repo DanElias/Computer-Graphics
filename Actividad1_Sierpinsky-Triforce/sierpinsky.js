@@ -5,7 +5,7 @@
 */
 
 //Function calculates the top and right corner coordinates based on the triangles side lenght and left corner coordinates
-function coordinates_calc(length, left_c){
+function coordinates_calc(length, left_c) {
     //Pythagoras to calculate the height -> used for the y coordinate
     let height = Math.sqrt(Math.pow(length, 2) - Math.pow(length/2, 2))
     //This obtained formulas for the coordinates will never change when we use height and a reference initial left coordinate
@@ -13,10 +13,10 @@ function coordinates_calc(length, left_c){
         top_c: [left_c[0] + length/2, left_c[1] - height], 
         left_c: left_c, 
         right_c: [left_c[0] + length, left_c[1]]
-    }
+    };
 }
 
-function sierpinsky(ctx, coordinates, length, n){
+function sierpinsky(ctx, coordinates, length, n) {
     //stops recursive calls
     if(n == 0){
         ctx.beginPath();
@@ -24,7 +24,7 @@ function sierpinsky(ctx, coordinates, length, n){
         ctx.lineTo(coordinates["left_c"][0], coordinates["left_c"][1]);
         ctx.lineTo(coordinates["right_c"][0], coordinates["right_c"][1]);
         ctx.lineTo(coordinates["top_c"][0], coordinates["top_c"][1]);
-        ctx.fill()
+        ctx.fill();
     } else {
         //recalculates coordinates for each corner
         //always subdivided into 3 triangles: left, top, right -> 3 calls to the same function with different coordinates
@@ -38,12 +38,11 @@ function sierpinsky(ctx, coordinates, length, n){
     }
 }
 
-function main()
-{
+function main() {
     //Canvas setup
     let canvas = document.getElementById("htmlCanvas");
     if(!canvas) {
-        console.log("Failed to load the canvas element.")
+        console.log("Failed to load the canvas element.");
         return;
     }
     let ctx = canvas.getContext("2d");
@@ -53,7 +52,7 @@ function main()
 
     //Harcoded initial values for the triangle
     let length = 300;
-    let initial_coordinates = coordinates_calc(length, [225,325])
+    let initial_coordinates = coordinates_calc(length, [225,325]);
 
     //Slider setup
     let slider = document.getElementById("myRange");
@@ -61,7 +60,7 @@ function main()
     output.innerHTML = slider.value;
 
     //Initial drawing
-    sierpinsky(ctx, initial_coordinates, length, slider.value)
+    sierpinsky(ctx, initial_coordinates, length, slider.value);
 
     //Update when slider is moved
     slider.oninput = function() {
@@ -69,7 +68,7 @@ function main()
         //Clear screen
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         //Recursive call
-        sierpinsky(ctx, initial_coordinates, length, this.value)
+        sierpinsky(ctx, initial_coordinates, length, this.value);
     }
 }
 
