@@ -7,6 +7,14 @@
 //globals
 let ctx = null;
 let canvas = null;
+let keyPressed = {};
+let bgFrames = [];
+let frameCounter = 0;
+let maxBallSpeed = 5;
+let score = document.getElementById("score");
+let score_p1 = 0;
+let score_p2 = 0;
+
 
 class sphere {
     constructor(color, x, y, radius, speed) {
@@ -19,6 +27,9 @@ class sphere {
         this.speed = speed;
         this.tag = "sphere";
         this.collisionObjects = [];
+        this.width = this.x + 2 * this.radius;
+        this.height = this.width;
+        this.speed_increment = 1;
     }
 
     draw() { 
@@ -48,13 +59,23 @@ class sphere {
 
     movement(xLimit, yLimit){
         //Rebota derecha e izquierda
-        if(this.x + this.radius > xLimit){this.right = false;}
-        if(this.x < this.radius){this.right = true;}
+        if(this.x + this.radius > xLimit){
+            this.right = false;
+            this.speed_increment += 1;
+            score_p1 += 1
+            score.innerHTML = "Score : " + score_p1 + " | " + score_p2;
+        }
+        if(this.x < this.radius){
+            this.right = true;
+            this.speed_increment += 1;
+            score_p2 += 1
+            score.innerHTML = "Score : " + score_p1 + " | " + score_p2;
+        }
 
         if(this.right){
-            this.x += 1;
+            this.x += 1 * this.speed_increment;
         } else {
-            this.x -= 1;
+            this.x -= 1 * this.speed_increment;
         }
 
         //Rebota arriba y abajo
@@ -75,11 +96,19 @@ class sphere {
     checkCollisions(){
         for(let collisionObject of this.collisionObjects) {
             let collider = collisionObject.getCollider();
-            console.log(collider.top_right)
-            console.log(this.x);
-            //collides with wall
-            if(Math.abs(collider.top_right.x >= this.x - this.radius)){
-                this.right = !this.right;
+
+            let xMin = collider.top_left.x;
+            let xMax = collider.bottom_right.x;
+            let yMin = collider.top_left.y;
+            let yMax = collider.bottom_right.y;
+            
+            if(((this.x + this.radius) > xMin && (this.x + this.radius) < xMax ) ||
+            ((this.x + this.radius) > xMin && (this.x - this.radius) < xMax)) {
+                if((this.y + this.radius) > yMin && (this.y + this.radius) < yMax ){
+                    this.right = !this.right;
+                    this.up = !this.up;
+                    this.speed_increment += 1;
+                }
             }
         }
     }
@@ -100,8 +129,10 @@ class bar {
         this.ai = ai
         this.aiTargets = [];
         this.tag = "bar";
+        keyPressed[this.up] = false;
+        keyPressed[this.down] = false;
         if(!this.ai){
-            document.addEventListener("keydown", this);
+            this.keyEvents();
         }
     }
 
@@ -127,8 +158,36 @@ class bar {
         }
     }
 
+    keyEvents() {
+        //if (event.defaultPrevented) { return; }
+        document.addEventListener('keydown', event =>{
+            console.log(keyPressed);
+            if(event.key in keyPressed){
+                keyPressed[event.key] = true;
+            }
+
+            if(keyPressed[this.up])
+                this.moveUp();
+
+            if(keyPressed[this.down])
+                this.moveDown();
+
+        });
+
+        document.addEventListener('keyup', event => {
+            if(event.key in keyPressed){
+                keyPressed[event.key] = false;
+            }
+        });
+        //event.preventDefault();
+    }
+
     getPosition(){
         return {x: this.x, y: this.y};
+    }
+
+    getDimensions(){
+        return {width: this.x, height: this.y};
     }
 
     getCollider(){
@@ -156,21 +215,6 @@ class bar {
         }
     }
 
-    handleEvent(event) {
-        //if (event.defaultPrevented) { return; }
-        switch(event.key){
-            case this.up:
-                this.moveUp();
-                break;
-            case this.down:
-                this.moveDown();
-                break;
-            default:
-                break;
-        }
-        //event.preventDefault();
-    }
-
     addAiTarget(aiTarget){
         this.aiTargets.push(aiTarget);
     }
@@ -186,6 +230,15 @@ function update(objects) {
     requestAnimationFrame(() => update(objects)); //es como un while(true) => draw
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    //Background gif animation by frames
+    if(frameCounter >= bgFrames.length) 
+        frameCounter = 0;
+    ctx.drawImage(bgFrames[frameCounter], 0, 0, canvas.width, canvas.height);
+    frameCounter += 1;
+
+    if(objects["sphere"].speed_increment > maxBallSpeed){
+        objects["sphere"].speed_increment -= 1;
+    }
     for (let key in objects) {
         objects[key].draw();
         objects[key].update(canvas.width, canvas.height);
@@ -194,14 +247,21 @@ function update(objects) {
 }
 
 function main(){
+    score = document.getElementById("score");
     canvas = document.getElementById("ballCanvas");
     ctx = canvas.getContext("2d");
+
+    for(let i = 1; i <= 15; i++){
+        bgFrames.push(document.getElementById("img"+i));
+    }
+
+    keyPressed = {'w': false, 's': false, "ArrowUp": false,  "ArrowDown": false}
     let objects = { 
-        sphere: new sphere('white', canvas.width / 2, canvas.height / 2, 20, 5),
-        player1: new bar('white', canvas.width - 30, canvas.height / 2, 20, 100, "ArrowUp", "ArrowDown", 5, canvas.height, true),
+        sphere: new sphere('white', canvas.width / 2, canvas.height / 2, 20, 3),
+        player1: new bar('white', canvas.width - 30, canvas.height / 2, 20, 100, "o", "l", 5, canvas.height, false),
         player2: new bar('white', 10 , canvas.height / 2, 20, 100, "w", "s", 5, canvas.height, false)
     }
-    //objects["sphere"].addCollisionObject(objects["player1"]);
+    objects["sphere"].addCollisionObject(objects["player1"]);
     objects["sphere"].addCollisionObject(objects["player2"]);
     objects["player1"].addAiTarget(objects["sphere"]);
     update(objects);
