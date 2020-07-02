@@ -4,7 +4,7 @@
 * Title: Javascript 2D - Sierpinsky - Triforce
 */
 
-//Function calculates the top and right corner coordinates based on the triangles side lenght and left corner coordinates
+//Function calculates the top and right corner coordinates based on the triangles side length and left corner coordinates
 function coordinates_calc(length, left_c) {
     //Pythagoras to calculate the height -> used for the y coordinate
     let height = Math.sqrt(Math.pow(length, 2) - Math.pow(length/2, 2))
