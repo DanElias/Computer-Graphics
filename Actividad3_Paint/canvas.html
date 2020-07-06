@@ -4,18 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas introduction</title>
-    
-    <script src="sierpinsky.js"></script>
-</head>
-<body onload="main()">
-    <div class="slidecontainer">
-        <input type="range" min="0" max="10" value="5" class="slider" id="myRange">
-        <p>Value: <span id="demo"></span></p>
-      </div>
-    <div>
-        <canvas id="htmlCanvas" width="800" height="400" style="border: black; border-style: solid; border-width: 2px;"></canvas>
-    </div>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-    <script src="script.js"></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src="paint.js"></script>
+</head>
+<body onload="main()" style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+    <div class="row m12 center-align" > 
+        
+        <div class="col m2" id="controls" style="background-color: #4e566b; height: 800px;"> 
+            <h4 style="color: white;">Sketchapp</h4>
+            <hr style="color: white;">
+            <br>
+            <div class="slidecontainer row">
+                <p style="color: white; "><i class="material-icons">brush</i>Width: <span id="demo"></span></p>
+                <input type="range" min="0" max="10" value="5" class="slider" id="myRange" style="border: none; width: 85%; height: 10%;">
+              </div>
+            <p style="color: white;"><i class="material-icons">colorize</i>Color:</p>
+            <div id="colorPicker" class="row">
+                <input type="color" 
+                id="html5colorpicker" 
+                value="#ff0000" 
+                style="width:85%;">
+            </div>
+            <br>
+            <a class="waves-effect waves-light btn red" id="erase"><i class="material-icons left">delete</i>Erase</a>
+        </div>
+        <br>
+        <div class="col m8 center-align" id="canvas_col"> 
+            <div>
+                <canvas id="htmlCanvas" width="1100" height="600" style="border: #4e566b; border-style: solid; border-width: 5px;"></canvas>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
