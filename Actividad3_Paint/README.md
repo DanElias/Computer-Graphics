@@ -1,4 +1,4 @@
-# Sketchapp! Happy painting
+# Sketchapp! Happy painting!
 
 ## Technologies:
     - Javascript
@@ -11,7 +11,7 @@
     - Erase your work
     - Download your work
 
-## Future enhancement:
+## Future enhancements:
     - Add a stack to keep track of painting and enable redo or undo features
     - Change brush shape or texture
 
