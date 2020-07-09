@@ -16,10 +16,11 @@
 		        initViewport(gl, canvas);
 		        initGL(canvas);
                 //let cube = createCube(gl, [2 , 0, -2], [0.1, 1.0, 0.2]);
-				let pyramid = createPyramid(gl, 50, 0.7, 1.5, [-2, 0, -2], [0.5, 1.0, 0.2]);
-				let pyramid2 = createPyramid(gl, 4, 0.7, 1.5, [2, 0, -2], [0.5, 1.0, 0.2]);
+				let pyramid = createPyramid(gl, 5, 1, 1.5, [-2.5, -0.5, -2], [0.1, 1.0, 0.2]);
+				let pyramid2 = createPyramid(gl, 4, 1, 1, [2.5, 0, -2],  [0, 1, 0],);
+				let pyramid3 = createPyramid(gl, 4, 1, -1, [2.5, 0, -2], [0, 1, 0],);
 		        initShader(gl);
-				run(gl, [pyramid, pyramid2]);
+				run(gl, [pyramid, pyramid2, pyramid3]);
 			}
 	);
 

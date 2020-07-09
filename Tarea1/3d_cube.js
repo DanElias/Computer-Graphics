@@ -196,9 +196,9 @@ function createPyramid(gl, sides, radius, height, translation, rotationAxis)
     //********************** VERTEX DATA ************************* */
     let vertexBuffer;
     vertexBuffer = gl.createBuffer();
-    total_verts = 4*sides
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
+    total_verts = 4*sides
     let verts = calculatePyramidVertices(gl, sides, radius, height);
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
@@ -227,7 +227,7 @@ function createPyramid(gl, sides, radius, height, translation, rotationAxis)
 
     let faceColors = []
     for(let face = 0; face < sides; face++){
-        faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]);
+        faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]); //faces
     }
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
