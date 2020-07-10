@@ -1,54 +1,35 @@
 <html>
 
 <head>
-<title>2D Figures</title>
+<title>3D Cube</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 <script src="../libs/gl-matrix/gl-matrix.js"></script>
 <script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
-<script src=figures.js></script>
+<script src="hw1.js"></script>
 
 <script type="text/javascript">
-
-// Jquery that detects the state of rediness. Code inside the function will only run once the page DOM is ready for Javascript code to execute.
+          
 	$(document).ready(
 			function() {
-                let canvas = document.getElementById("webglcanvas");
-                
-                let gl = initWebGL(canvas);
-                initGL(gl, canvas);
+		        let canvas = document.getElementById("webglcanvas");
+			    let gl = initWebGL(canvas);
 		        initViewport(gl, canvas);
-                initShader(gl);
-
-                let square = createSquare(gl, 0.4);
-                let triangle = createTriangle(gl, 0.4);
-                let circle = createPacMan(gl, 0.4);
-
-                mat4.identity(modelViewMatrix);
-                mat4.translate(modelViewMatrix, modelViewMatrix, [-1, .7, -3.333]);
-                draw(gl, square);
-                
-                mat4.identity(modelViewMatrix);
-                mat4.translate(modelViewMatrix, modelViewMatrix, [1, .7, -3.333]);
-                draw(gl, triangle);
-
-                mat4.identity(modelViewMatrix);
-                mat4.translate(modelViewMatrix, modelViewMatrix, [-1, -.7, -3.333]);
-                mat4.rotate(modelViewMatrix, modelViewMatrix, Math.PI/4, [ 0, 0, 2]);
-                draw(gl, square);
-
-                mat4.identity(modelViewMatrix);
-                mat4.translate(modelViewMatrix, modelViewMatrix, [1, -.7, -3.333]);
-                draw(gl, circle);
+		        initGL(canvas);
+				let pyramid = createPyramid(gl, 100, 1, 1.5, [-2.5, -0.5, -2], [0.1, 1.0, 0.2]);
+				let octa = createOctahedron(gl, 30, 1, 1, [2.5, 0, -2],  [0, 1, 0]);
+				let dode = createDodecahedron(gl, 5, 0.5, [0, 0, -2], [-0.4, 1.0, 0.1])
+		        initShader(gl);
+				run(gl, [pyramid, octa, dode]);
 			}
 	);
+
 </script>
 
 </head>
-
-<!-- All WebGL rendering takes place in a context. This structure is provided in the HTML5 Canvas element. -->
 <body>
-    <canvas id="webglcanvas" style="border: none;" width="800px" height="600px" ></canvas>
+
+	<canvas id="webglcanvas" style="border: none;" width="800" height="600">
+	</canvas>
+
 </body>
-
 </html>
-
