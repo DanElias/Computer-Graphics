@@ -7,6 +7,8 @@ let shaderProgram, shaderVertexPositionAttribute, shaderVertexColorAttribute, sh
 
 let duration = 5000; // ms
 
+const canvas_const = document.getElementById("webglcanvas");
+
 // Attributes: Input variables used in the vertex shader. Since the vertex shader is called on each vertex, these will be different every time the vertex shader is invoked.
 // Uniforms: Input variables for both the vertex and fragment shaders. These do not change values from vertex to vertex.
 // Varyings: Used for passing data from the vertex shader to the fragment shader. Represent information for which the shader can output different value for each vertex.
@@ -296,7 +298,7 @@ function createPyramid(gl, sides, radius, height, translation, rotationAxis)
     
     let pyramid = {
             buffer:vertexBuffer, colorBuffer:colorBuffer, indices:indexBuffer,
-            vertSize:3, nVerts: total_verts, colorSize:4, nColors: total_indices, nIndices: total_indices,
+            vertSize:3, nVerts: total_verts, colorSize:4, nColors: 20, nIndices: total_indices,
             primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now()};
 
     mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
@@ -402,7 +404,7 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
     let pyramid = {
             buffer:vertexBuffer, colorBuffer:colorBuffer, indices:indexBuffer,
             vertSize:3, nVerts: total_verts, colorSize:4, nColors: total_indices, nIndices: total_indices,
-            primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now()};
+            primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now(), up: true};
 
     mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
 
@@ -413,6 +415,16 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
         this.currentTime = now;
         let fract = deltat / duration;
         let angle = Math.PI * 2 * fract;
+        
+
+        //La posicion "y" del objeto de la matriz de transformacion está definida en:
+        // posiciones 12 a 14, 12 es x, 13 es y, 14 es z
+        if( this.modelViewMatrix[13] * canvas_const.height < -1 * canvas_const.height * 2){
+            this.up = true;
+        } 
+        if( this.modelViewMatrix[13] * canvas_const.height > canvas_const.height * 2){
+            this.up = false;
+        }
     
         // Rotates a mat4 by the given angle
         // mat4 out the receiving matrix
@@ -420,13 +432,20 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
         // Number rad the angle to rotate the matrix by
         // vec3 axis the axis to rotate around
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
+
+        if(this.up){
+            mat4.translate(this.modelViewMatrix, this.modelViewMatrix, [0, 0.05, 0]);
+        } else {
+            mat4.translate(this.modelViewMatrix, this.modelViewMatrix, [0, -0.05, 0]);
+        }
+            
     };
     
     return pyramid;
 }
 
 // Create the vertex, color and index data for a multi-colored octahedron
-function createDodecahedron(gl, sides, radius, translation, rotationAxis)
+function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotationAxis2)
 {    
     //********************** VERTEX DATA ************************* */
     let vertexBuffer;
@@ -514,14 +533,15 @@ function createDodecahedron(gl, sides, radius, translation, rotationAxis)
         let deltat = now - this.currentTime;
         this.currentTime = now;
         let fract = deltat / duration;
-        let angle = Math.PI * 2 * fract;
+        let angle = Math.PI * fract; //originally it had * 2 but it is 1/2 speed as two rotations are made in one frame
     
         // Rotates a mat4 by the given angle
         // mat4 out the receiving matrix
         // mat4 a the matrix to rotate
         // Number rad the angle to rotate the matrix by
         // vec3 axis the axis to rotate around
-        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
+        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis1);
+        mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis2);
     };
     
     return dode;
