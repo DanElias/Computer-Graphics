@@ -14,12 +14,28 @@
 		        const canvas = document.getElementById("webglcanvas");
 			    let gl = initWebGL(canvas);
 		        initViewport(gl, canvas);
-		        initGL(canvas);
+				initGL(canvas);
+				
+				//sides, radius, height, rotation, translation
+				//I made a simple way of Polygon Triangulation (works with regular polygons) in which
+				//each polygon base has sides-2 inner triangles, if you change the sides number
+				// any pyramid > 3 sides for the base can be created, even a cone which is just a pyramid
+				//with many sides for the base, try 100 for example.
 				let pyramid = createPyramid(gl, 5, 1, 1, [-2.5, -0.5, -2], [0.1, 1.0, 0.2]);
+
+				//sides, radius, translation, rotation1, rotation2
+				//sides are 5 as the faces are pentagons
 				let dode = createDodecahedron(gl, 5, 1, [0, 0, -2], [-0.4, 1.0, 0.1], [0, 1, 0]);
+				//played with the scale here, these can also be added to the code of the object creation
 				mat4.scale(dode.modelViewMatrix, dode.modelViewMatrix, [0.5, 0.5 ,0.5]);
+
+				// sides, radius, height, translation, rotation
+				//the sides are 4 as I calculate the octahedron as a pyramid without base and mirrored
+				//so the upper pyramid is just calculated from a cuadrangular base with a circle of "radius specified"
 				let octa = createOctahedron(gl, 4, 1, 1, [2.5, 0, -2],  [0, 1, 0]);
+				//played with the scale here, these can also be added to the code of the object creation
 				mat4.scale(octa.modelViewMatrix, octa.modelViewMatrix, [0.9, 0.9 ,0.9]);
+
 		        initShader(gl);
 				run(gl, [pyramid, octa, dode]);
 			}

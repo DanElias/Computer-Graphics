@@ -1,5 +1,4 @@
 let mat4 = glMatrix.mat4;
-let mat3 = glMatrix.mat3;
 
 let projectionMatrix;
 
@@ -7,6 +6,8 @@ let shaderProgram, shaderVertexPositionAttribute, shaderVertexColorAttribute, sh
 
 let duration = 5000; // ms
 
+//this is just received by using document getElementById, in this case the height of canvas is 600 always
+//as defined in the HTML
 const canvas_const = document.getElementById("webglcanvas");
 
 // Attributes: Input variables used in the vertex shader. Since the vertex shader is called on each vertex, these will be different every time the vertex shader is invoked.
@@ -192,7 +193,17 @@ function createCube(gl, translation, rotationAxis)
     return cube;
 }
 
-// Create the vertex, color and index data for a multi-colored cube
+/*
+*This function creates a Pyramid with the help of some utils functions defined and commented at the end of this code
+* I used the 5 vertices at the base, and then I use a simple way of polygon trinagulation to define the indices.
+*
+*INPUTS:
+*sides -  the number of sides of the base, which in case of pentagonal pyramid is 5
+*radius - a scalar for the size of the base which is calculated with a circle
+*height - the height of the pyramid
+*OUTPUTS:
+* Pyramid object
+*/
 function createPyramid(gl, sides, radius, height, translation, rotationAxis)
 {    
     //********************** VERTEX DATA ************************* */
@@ -298,7 +309,7 @@ function createPyramid(gl, sides, radius, height, translation, rotationAxis)
     
     let pyramid = {
             buffer:vertexBuffer, colorBuffer:colorBuffer, indices:indexBuffer,
-            vertSize:3, nVerts: total_verts, colorSize:4, nColors: 20, nIndices: total_indices,
+            vertSize:3, nVerts: total_verts, colorSize:4, nColors: total_verts, nIndices: total_indices,
             primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now()};
 
     mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
@@ -322,7 +333,18 @@ function createPyramid(gl, sides, radius, height, translation, rotationAxis)
     return pyramid;
 }
 
-// Create the vertex, color and index data for a multi-colored cube
+/*
+*This function creates a Octahedron, based on the pyramid's code, but with no pyramid base and the upper pyramid is mirrored
+*
+*INPUTS:
+*sides -  the number of sides of the base, which in case of octahedron is 4
+*           it is constructed as a pyramid of 4 sides but I don't add the bases vertices and
+*           I mirror the top to the bottom to create the octahedron (2 pyramids without base)
+*radius - a scalar for the size of the base which is calculated with a circle, the base is not drawn
+*height -  as in the pyramid, the height of the octahedron, which is always doubled as the upper "pyramid" is mirrored
+*OUTPUTS:
+* Octahedron object
+*/
 function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
 {    
     //********************** VERTEX DATA ************************* */
@@ -330,7 +352,7 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
     let vertexBuffer =  gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
-    // 3 * sides as the side faces are triangles + each side of the base which is just sides
+    // 3 * sides as the side faces are triangles, then * 2 as the upper "pyramid is mirrored"
     total_verts = 3 * sides * 2
 
     //Get the vertices
@@ -344,25 +366,7 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
 
-    /*
-    let baseColors = [
-        [1.0, 0.0, 0.0, 1.0], // base
-    ];*/
-
-    /*
-    let faceColors = [
-        [0.0, 1.0, 0.0, 1.0], // env face 1
-        [0.0, 0.0, 1.0, 1.0], // env face 2
-        [1.0, 1.0, 0.0, 1.0], // env face 3
-        [1.0, 0.0, 1.0, 1.0], // env face 4
-        [0.0, 1.0, 1.0, 1.0]  // env face 5
-    ];*/
-
-    //Separated the colors into the ones of the triangles of the base
-    //which share the same color
-    let baseColors = [ ];
-
-    //And the colors of the sides, a different color for each face
+    //And the colors of the sides, a different color for each face, 8 faces
     let faceColors = []
     for(let face = 0; face < sides*2; face++){
         faceColors.push([Math.random(), Math.random(), Math.random(), 1.0]); //faces
@@ -386,14 +390,12 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
     let indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-    // 3 * sides as each side is a triangle already
+    // 3 * sides as each side is a triangle already, and * 2 because of the mirrored pyramid
     let total_indices = 3 * sides * 2
     let indices = []
     for(let i = 0; i < total_indices; i++){
         indices.push(i);
     }
-
-    console.log(total_indices)
 
     // gl.ELEMENT_ARRAY_BUFFER: Buffer used for element indices.
     // Uint16Array: Array of 16-bit unsigned integers.
@@ -401,14 +403,14 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
 
     //********************** CREATE OBJECT WITH DATA ************************* */
     
-    let pyramid = {
+    let octahedron = {
             buffer:vertexBuffer, colorBuffer:colorBuffer, indices:indexBuffer,
-            vertSize:3, nVerts: total_verts, colorSize:4, nColors: total_indices, nIndices: total_indices,
+            vertSize:3, nVerts: total_verts, colorSize:4, nColors: total_verts, nIndices: total_indices,
             primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now(), up: true};
 
-    mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
+    mat4.translate(octahedron.modelViewMatrix, octahedron.modelViewMatrix, translation);
 
-    pyramid.update = function()
+    octahedron.update = function()
     {
         let now = Date.now();
         let deltat = now - this.currentTime;
@@ -419,7 +421,12 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
 
         //La posicion "y" del objeto de la matriz de transformacion está definida en:
         // posiciones 12 a 14, 12 es x, 13 es y, 14 es z
+        //the canvas height is 600. The * 2 as I found it to work, its like it is 600 up and 600 down, but it was
+        // gotten with ojo de buen cubero
+        //Also the y pos of the object is multiplied by canvas height as again with ojo de buen cubero, I discovered
+        //that was the factor by which the object should check if it has reached the edge of the canvas.
         if( this.modelViewMatrix[13] * canvas_const.height < -1 * canvas_const.height * 2){
+            //used states defined in the creation of the object
             this.up = true;
         } 
         if( this.modelViewMatrix[13] * canvas_const.height > canvas_const.height * 2){
@@ -434,17 +441,29 @@ function createOctahedron(gl, sides, radius, height, translation, rotationAxis)
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
 
         if(this.up){
+            //moves up
             mat4.translate(this.modelViewMatrix, this.modelViewMatrix, [0, 0.05, 0]);
         } else {
+            //moves down
             mat4.translate(this.modelViewMatrix, this.modelViewMatrix, [0, -0.05, 0]);
         }
             
     };
     
-    return pyramid;
+    return octahedron;
 }
 
-// Create the vertex, color and index data for a multi-colored octahedron
+/*
+*This function creates a Dodecahedron
+*
+*INPUTS:
+*sides -  the number of sides which is always 5 as faces are pentagons
+*radius - a scalar that changes the original size of the object * radius
+*receives two rotation axis as it needed to rotate in both
+*
+*OUTPUTS:
+*verts -  dodecahedron object
+*/
 function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotationAxis2)
 {    
     //********************** VERTEX DATA ************************* */
@@ -452,7 +471,8 @@ function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotat
     vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 
-    total_verts = 20 * sides
+    // vertices are 5 for each side, and we have 12 sides 
+    total_verts = 12 * sides
     let verts= calculateDodecahedronVertices(radius);
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
@@ -460,22 +480,6 @@ function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotat
     //********************** COLOR DATA ************************* */
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-
-    /*
-    let baseColors = [
-        [1.0, 0.0, 0.0, 1.0], // base
-    ];*/
-
-    let baseColors = [];
-
-     /*
-    let faceColors = [
-        [0.0, 1.0, 0.0, 1.0], // env face 1
-        [0.0, 0.0, 1.0, 1.0], // env face 2
-        [1.0, 1.0, 0.0, 1.0], // env face 3
-        [1.0, 0.0, 1.0, 1.0], // env face 4
-        [0.0, 1.0, 1.0, 1.0]  // env face 5
-    ];*/
 
     let faceColors = []
     for(let face = 0; face < 12; face++){
@@ -501,19 +505,15 @@ function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotat
     
     let dodeIndices = []
 
-    //El número de triángulos internos va a ser igual a número de lados del polígono - 2
+    //Each triangle repeats the pattern : 0, 1, 2,      0, 2, 3,      0, 3, 4,  etc..
+    //Then I use skips of 5 as we need to move to the next pentagon face, after 5 indices
+    //I push to the dodeIndices 3 times cause there are 3 triangles inside a pentagon, defined by the pattern already described
     for(let i = 0; i < total_indices; i+=5){
         dodeIndices.push(i, i+1, i+2);
         dodeIndices.push(i, i+2, i+3);
         dodeIndices.push(i, i+3, i+4);
     }
-
-    /* 
-    let pyramidIndices = [
-        0, 1, 2,      0, 2, 3,      0, 3, 4,    
-        0, 1, 2,      0, 2, 3,      0, 3, 4,   
-    ];*/
-
+    
     // gl.ELEMENT_ARRAY_BUFFER: Buffer used for element indices.
     // Uint16Array: Array of 16-bit unsigned integers.
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(dodeIndices), gl.STATIC_DRAW);
@@ -522,7 +522,7 @@ function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotat
     
     let dode = {
             buffer:vertexBuffer, colorBuffer:colorBuffer, indices:indexBuffer,
-            vertSize:3, nVerts: 60, colorSize:4, nColors: total_indices, nIndices: total_indices,
+            vertSize:3, nVerts: total_verts, colorSize:4, nColors: total_verts, nIndices: total_indices,
             primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now()};
 
     mat4.translate(dode.modelViewMatrix, dode.modelViewMatrix, translation);
@@ -540,6 +540,7 @@ function createDodecahedron(gl, sides, radius, translation, rotationAxis1, rotat
         // mat4 a the matrix to rotate
         // Number rad the angle to rotate the matrix by
         // vec3 axis the axis to rotate around
+        //Here I make the rotations by two axis
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis1);
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis2);
     };
