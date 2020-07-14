@@ -13,6 +13,6 @@
 
 ## Notes:
     - Rotation might look different as my algorithm starts with the left corner of a face
-    and calculates the rest vertices with it but it was left as it was in the source
+    and calculates the rest of the vertices with it. Rotation was left as it was in the source
     code provided
 
