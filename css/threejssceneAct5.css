@@ -1,0 +1,63 @@
+@charset "UTF-8";
+
+body {
+	background-color: #05070a;
+}
+
+#webglcanvas {
+	border:none;
+	background-color:#ffffff;
+}
+
+#title {
+	position:absolute;
+	left:20px;
+	top:20px;
+	color:white;
+	visibility: hidden;
+}
+
+#prompt {
+	position:absolute;
+	bottom:20px;
+	left:20px;
+	color:white;
+}
+
+#status {
+	position:absolute;
+	bottom:20px;
+	width:200px;
+	height:40px;
+	right:20px;
+	color:white;
+}
+
+#rotation {
+	position:absolute;
+	left:20px;
+	top:0px;
+}
+
+#scale {
+	position:absolute;
+	left:20px;
+	top:20px;
+}
+
+#slider {
+	width:100%;
+	height:10px;
+	background:#e9e9e9;
+}
+
+#slider .ui-slider-handle {
+	height:18px;
+	width:32px;
+}
+
+#webglcanvas {
+	background: #ffffff;
+}
+
+

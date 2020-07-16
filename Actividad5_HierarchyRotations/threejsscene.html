@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas introduction</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	
+	<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.css" />
+	<link rel="stylesheet" href="../css/main.css" />
+	<link rel="stylesheet" href="../css/threejssceneAct5.css" />
+
+	<script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+	<script src="../libs/jquery-ui/jquery-ui.js"></script>
+	<script src="../libs/three.js/three.js"></script>
+
+	<script src="sceneHandlers.js"></script>
+	<script src="threejsscene.js"></script>
+
+	<script type="text/javascript">
+		
+		$(document).ready(
+				function() {
+
+					$("#slider").slider({min: 0.1, max: 2, value: 1, step: 0.01, animate: false});
+									
+					let canvas = document.getElementById("webglcanvas");
+
+					// create the scene
+					createScene(canvas);
+					
+					// Run the run loop
+					run();
+					run2();
+				}
+		);
+
+	</script>
+
+</head>
+<body >
+    <div class="row m12 center-align" > 
+        
+        <div class="col m2" id="controls" style="background-color:#24272e; height: 800px;"> 
+            <p style="color: white; font-size: larger;">Graph/Transform Hierarchy</h4>
+            <hr style="color: white;">
+			<br>
+			<p style="color: white;"> Scale: </p>
+            <div id="slider"></div>
+            <br>
+            <a class="waves-effect waves-light btn  light-blue darken-3" id="body">
+				<i class="material-icons left">fiber_manual_record</i>
+				Body
+			</a>
+			<br>
+			<br>
+			<a class="waves-effect waves-light btn  cyan darken-3" id="satellite">
+				<i class="material-icons left">fiber_smart_record</i>
+				Satellite
+			</a>
+			<br>	
+			<br>
+			<a class="waves-effect waves-light btn amber darken-2" id="clear">
+				<i class="material-icons left">delete</i>
+				Clear
+			</a>
+        </div>
+        <br>
+        <div class="col m8 center-align" id="canvas_col" > 
+            <div id="container">
+				<canvas id="webglcanvas" width=1080 height=720></canvas>
+				<div id="title">
+					Graph/Transform Hierarchy
+				</div>
+				<div id="prompt">
+					Drag the mouse to rotate the scene<br>Drag the slider to scale.
+				</div>
+				<div id="status">
+					<div id="rotation">rotation: 0,0,0</div>
+					<div id="scale">scale: 1</div>
+				</div>
+			</div>
+			
+        </div>
+    </div>
+</body>
+</html>
