@@ -8,9 +8,7 @@ let renderer = null;
 let scene = null;
 let camera = null;
 
-//states for the clear function
-let new_run = true;
-let last_scale_value = 1;
+let mainGroup = null;
 
 let duration = 5000; // ms
 let currentTime = Date.now();
@@ -139,19 +137,15 @@ function createScene(canvas)
 
     /****************************************Objects********************************************/
     // Create a group to hold all the objects
-    let mainGroup = new THREE.Object3D;
+    mainGroup = new THREE.Object3D;
     mainGroup.position.set(0, 0, 0);
+    mainGroup.name = "MainGroup";
 
     scene.add(mainGroup);
     body_groups.push(mainGroup);
 
-    addMouseHandler(canvas, mainGroup, last_scale_value);
-
-    // add mouse handling so we can rotate the scene
-    if(new_run){
-        addButtonsHandler();
-        new_run = false;
-    }
+    addMouseHandler(canvas, mainGroup);
+    addButtonsHandler();
         
 }
 
@@ -291,10 +285,11 @@ function clearScene(){
     objects_bodies = [];
     objects_satellites = [];
     satellites = [];
-    while(scene.children.length > 0){ 
-        scene.remove(scene.children[0]); 
+
+    for (let i = scene.children[3].children.length - 1; i >= 0; i--) {
+        scene.children[3].remove(scene.children[3].children[i]);
     }
-    let canvas = document.getElementById("webglcanvas");
-    // create the scene
-    createScene(canvas);
+
+    body_groups.push(mainGroup);
+
 }

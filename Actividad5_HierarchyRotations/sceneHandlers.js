@@ -10,8 +10,6 @@ function rotateScene(deltax, group)
 
 function scaleScene(scale, group)
 {
-    last_scale_value = scale
-    //alert("hola?=")
     group.scale.set(scale, scale, scale);
     $("#scale").html("scale: " + scale);
 }
@@ -44,20 +42,19 @@ function onMouseUp(evt)
     mouseDown = false;
 }
 
-function addMouseHandler(canvas, group, last_scale_value)
+function addMouseHandler(canvas, group)
 {
     canvas.addEventListener( 'mousemove', e => onMouseMove(e, group), false);
     canvas.addEventListener( 'mousedown', e => onMouseDown(e), false );
     canvas.addEventListener( 'mouseup',  e => onMouseUp(e), false );
 
     $("#slider").on("slide", (e, u) => scaleScene(u.value, group));
-    scaleScene(last_scale_value, group)
+   
 }
 
 
 function addButtonsHandler()
 {   
-    
     $("#body").on("click", (e) => createBody());
     $("#satellite").on("click", (e) => createSatellite());
     $("#clear").on("click", (e) => clearScene());
