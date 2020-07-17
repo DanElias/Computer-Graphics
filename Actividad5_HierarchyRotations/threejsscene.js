@@ -1,14 +1,39 @@
+/*
+* Author: Daniel Elias Becerra 
+* Year: 2020
+* Three.js Introduction and Groups Hierarchy - System
+*/
+
 let renderer = null;
 let scene = null;
 let camera = null;
 
+//states for the clear function
+let new_run = true;
+let last_scale_value = 1;
+
 let duration = 5000; // ms
 let currentTime = Date.now();
+
 //saves the groups that have been created after each click on Body
+//for hierarchy and translation movement around the center of the canvas
 let body_groups = [];
-//saves the meshes to be animated, be them a body or a satellite
+
+//saves groups for the satellites
+//for hierarchy and translation movement around a body
+let satellite_groups = [];
+
+//saves the meshes to be animated, for bodies
+//to change their rotation on the animation
 let objects_bodies = [];
+
+//saves the meshes to be animated, for satellites
+//to change their rotation on the animation at a different speed of the bodies
 let objects_satellites = [];
+
+//array that will be reset everytime a new body is added
+//has the satellites of the current body
+//used for distance calculation
 let satellites = [];
 
 let body_geometries = [
@@ -49,23 +74,29 @@ function run() {
     let fract = deltat / duration;
     let angle = Math.PI * 2 * fract;
 
-    //rotation
+    //I separated meshes into different arrays so satellites have a different speed
+
+    //rotation bodies
     for(let object of objects_bodies){
         //Rotate object about its Y axis
-        object.rotation.y += angle/2;
+        object.rotation.y += angle/3;
     }
-    
+    //rotation satellites
     for(let object of objects_satellites){
         //Rotate object about its Y axis
         object.rotation.y += angle*4;
     } 
-
-    //translation
+    //translation bodies
     for(let object of body_groups){
         //Rotate object about its Y axis
-        object.rotation.y += angle/4;
+        object.rotation.y += angle/8;
+    }
+    //translation satellites
+    for(let object of satellite_groups){
+        //Rotate object about its Y axis
+        object.rotation.y += angle*3;
     } 
-    
+
     currentTime = now
 }
 
@@ -84,7 +115,6 @@ function createScene(canvas)
     // Set the background color 
     scene.background = new THREE.Color(0x05070a);
     // scene.background = new THREE.Color( "rgb(100, 100, 100)" );
-
 
     /****************************************Camera********************************************/
     // Add  a camera so we can view the scene
@@ -107,13 +137,6 @@ function createScene(canvas)
     let ambientLight = new THREE.AmbientLight(0xffccaa, 0.2);
     scene.add(ambientLight);
 
-    /****************************************Textures********************************************/
-    let textureUrl = "../images/ash_uvgrid01.jpg";
-    let texture = new THREE.TextureLoader().load(textureUrl);
-
-    /****************************************Materials********************************************/
-    let material = new THREE.MeshPhongMaterial({ map: texture });
-
     /****************************************Objects********************************************/
     // Create a group to hold all the objects
     let mainGroup = new THREE.Object3D;
@@ -122,60 +145,97 @@ function createScene(canvas)
     scene.add(mainGroup);
     body_groups.push(mainGroup);
 
+    addMouseHandler(canvas, mainGroup, last_scale_value);
+
     // add mouse handling so we can rotate the scene
-    addMouseHandler(canvas, mainGroup);
+    if(new_run){
+        addButtonsHandler();
+        new_run = false;
+    }
+        
 }
-
-
 
 function createBody(){
     let new_group = new THREE.Object3D;
+    let new_sat_group = new THREE.Object3D;
     let texture = textures[getRandomInt(0,6)]
     let material = new THREE.MeshPhongMaterial({ map: texture });
     let geometry = body_geometries[getRandomInt(0,3)]
     let body = new THREE.Mesh(geometry, material);
 
-    body_groups.push(new_group);
-
     let position_x = 0;
     let position_z = 0;
-    for(let group of body_groups){
-        position_x += Math.abs(group.position.x)
-        position_z += Math.abs(group.position.z)
+    let r = 0;
+    let a = 0;
+    let x = 0;
+    let z = 0;
+
+    //Save the new subgroup in the global array
+    satellite_groups.push(new_sat_group);
+
+    if(body_groups.length == 1){
+        //Add new group to global body groups array
+        body_groups.push(new_group);
+    } else {
+        //Add new group to global body groups array
+        body_groups.push(new_group);
+
+        //Calculations for the position of the new object, 
+        //trying to avoid collitions between satellites and bodies:
+        //move ftaher awayf from the center and don't collide with the satellites
+        //of other bodies
+        for(let group of body_groups){
+            position_x += Math.abs(group.position.x)
+            position_z += Math.abs(group.position.z)
+        }
+        for(let sat of satellites){
+            position_x += Math.abs(sat.position.x)
+            position_z += Math.abs(sat.position.z)
+        }
+        
+        //random point in the orbit or circle
+        r = position_x * 0.001 + 5
+        a = 2 * Math.PI * Math.random();
+        x = Math.round(r * Math.cos(a) + 1);
+        z = Math.round(r * Math.sin(a) + 1);
+
+        //Randomize if they are located negative or positive x and z axis
+        let negative_x = -1
+        if(Math.random() > 0.5) negative_x = 1;
+        let negative_z = -1
+        if(Math.random() > 0.5) negative_z = 1;
+
+        //don't have collisions between objects (move farther away from the center(0,0,0))
+        x = (x + position_x/3) * negative_x
+        z = (z + position_z/3) * negative_z
     }
-    for(let sat of satellites){
-        position_x += Math.abs(sat.position.x)
-        position_z += Math.abs(sat.position.z)
-    }
-    position_x = position_x/3
-    position_z = position_z/3
 
-    /*
-    position_x += Math.abs(body_groups[body_groups.length - 1].position.x)
-    position_z += Math.abs(body_groups[body_groups.length - 1].position.z)
-    */
-
-    let negative_x = -1
-    if(Math.random() > 0.5) negative_x = 1;
-    let negative_z = -1
-    if(Math.random() > 0.5) negative_z = 1;
-
-    position_x = (position_x + getRandomFloat(1, 3)) * negative_x
-    position_z = (position_z + getRandomFloat(1, 3)) * negative_z
-
+    //set the new object position
     new_group.position.set(
-        position_x,
+        x,
         0, 
-        position_z
+        z
     );
-
+    
+    //The satellites for the new body are set to zero
     satellites = []
+    //Add the mesh to the body group
     new_group.add(body);
-    objects_bodies.push(body);
+    //Add a sub group for the satellites to the new group
+    new_group.add(new_sat_group);
+    //Add the new body group to the main scene group
     body_groups[0].add(new_group)
+    //Save the mesh to the array of body meshes to be animated
+    objects_bodies.push(body);
 }
 
 function createSatellite(){
+
+    if(satellite_groups.length == 0){
+        alert("First add a celestial body!")
+        return;
+    }
+
     let texture = textures[getRandomInt(0,6)]
     let material = new THREE.MeshPhongMaterial({ map: texture });
     let geometry = satellite_geometries[getRandomInt(0,3)]
@@ -183,28 +243,58 @@ function createSatellite(){
 
     let position_x = 0;
     let position_z = 0;
+    let r = 0;
+    let a = 0;
+    let x = 0;
+    let z = 0;
+
+    //Calculations for the position of the new object, 
     for(let sat of satellites){
         position_x += Math.abs(sat.position.x)
         position_z += Math.abs(sat.position.z)
     }
-    position_x = position_x/4
-    position_z = position_z/4
+    
+    //random point in the orbit or circle
+    r = position_x/3 
+    a = 2 * Math.PI * Math.random();
+    x = Math.round(r * Math.cos(a) + 1);
+    z = Math.round(r * Math.sin(a) + 1);
 
+    //reduce the distance by a factor of 3 (works well)
+    position_x = position_x/2
+    position_z = position_z/2
+
+    //Randomize if they are located negative or positive x and z axis
     let negative_x = -1
     if(Math.random() > 0.5) negative_x = 1;
     let negative_z = -1
     if(Math.random() > 0.5) negative_z = 1;
 
-    position_x = (position_x + getRandomFloat(1, 1.5)) * negative_x
-    position_z = (position_z + getRandomFloat(1, 1.5)) * negative_z
+    //don't have collisions between objects (move farther away from the center(0,0,0))
+    x = (x + position_x) * negative_x
+    z = (z + position_z) * negative_z
 
     satellite.position.set(
-        position_x,
+        x,
         0, 
-        position_z
+        z
     );
-
-    body_groups[body_groups.length - 1].add(satellite);
+    
+    satellite_groups[satellite_groups.length - 1].add(satellite)
     objects_satellites.push(satellite);
     satellites.push(satellite)
+}
+
+function clearScene(){
+    body_groups = [];
+    satellite_groups = [];
+    objects_bodies = [];
+    objects_satellites = [];
+    satellites = [];
+    while(scene.children.length > 0){ 
+        scene.remove(scene.children[0]); 
+    }
+    let canvas = document.getElementById("webglcanvas");
+    // create the scene
+    createScene(canvas);
 }
