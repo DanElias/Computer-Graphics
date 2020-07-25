@@ -26,7 +26,7 @@ let materials = {};
 
 let objLoader = null, jsonLoader = null;
 
-let duration = 20000; // ms
+let duration = 60000; // ms
 let currentTime = Date.now();
 
 //lights
