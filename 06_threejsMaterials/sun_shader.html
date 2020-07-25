@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - materials - shaders [lava]</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="../../css/main.css">
+		
+		<script id="fragmentShader" type="x-shader/x-fragment">
+				uniform float time;
+
+				uniform float fogDensity;
+				uniform vec3 fogColor;
+
+				// Textura de transparencia
+				uniform sampler2D texture1;
+
+				// Textura de lava
+				uniform sampler2D texture2;
+
+				varying vec2 vUv;
+
+				void main( void ) {
+
+					//move the noise
+					vec2 T1 = vUv + vec2(1.5, 1.5) * time * 0.01;
+					
+					//move the texture
+					vec2 T2 = vUv + vec2(-1.0, 0.0) * time * 0.01;
+
+					vec4 noise = texture2D( texture1, vUv );
+					
+					//Here goes T2 now move
+					//Also the uniform uvScale is changed to not be badly mapped
+					//The uvScale is set to 2
+
+					vec4 color = texture2D( texture2, T2 * 2.0 );
+
+					//T1.x en vez de estar entre 0 y 1 va a estar entre 0 y 2
+					//repeating del uniform "texture" permite pasarse del 1
+					T1.x += noise.a * 2.0;
+					T1.y += noise.a * 2.0;
+
+					T2.x += noise.r * 0.8;
+					T2.y += noise.g * 0.8;
+
+					//que alpha channel of noise
+
+					float alpha = texture2D(texture1, T1 * 0.2).a; //Gets cloud texture alpha
+
+					//Texture color tends to white
+					//color ya tiene un alpha entonces si pones cero en alpha,
+					//igual se suma el alpha del color
+
+					vec4 temp =  color + vec4(alpha, alpha, alpha, alpha) * 2.0 * color ;
+
+					//vec4 temp = color;
+
+					if(temp.r < 0.4 && temp.g < 0.4 && temp.b < 0.4 && temp.g > 0.1 && temp.b > 0.1 && temp.r > 0.1){
+						temp.rgb += 0.3;
+					}
+					if(temp.r > 2.0)
+					{
+						temp.gb += 0.6;
+						temp.r -= 0.5;
+					}
+
+					if(temp.g > 1.5)
+					{
+						temp.r += 0.5;
+						temp.b += 0.3;
+					}
+
+				
+					gl_FragColor = temp * 1.0;
+				}
+		</script>
+
+		<script id="vertexShader" type="x-shader/x-vertex">
+				uniform vec2 uvScale;
+				varying vec2 vUv;
+
+				void main()
+				{
+					vUv = uvScale * uv;
+					vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+					gl_Position = projectionMatrix * mvPosition;
+				}
+		</script>
+		
+		<script src="../../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+		<script src="../../libs/jquery-ui/jquery-ui.js"></script>
+		<script src="../../libs/three.js/three.min.js"></script>
+		<script src="sun_shader.js"></script>
+		
+		<script type="text/javascript">
+			
+				$(document).ready(
+						function() {						
+							init(document.getElementById("webglcanvas"));
+							render();
+						}
+				);
+
+		</script>
+	</head>
+	<body>
+
+		<div id="container">
+      <canvas id="webglcanvas"></canvas>
+    </div>
+
+
+	</body>
+</html>

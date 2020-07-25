@@ -1,11 +1,10 @@
-
-// An integer value, in pixels, indicating the X coordinate at which the mouse pointer was located when the event occurred. 
-let mouseDown = false, pageX = 0;
+let mouseDown = false,
+pageX = 0;
 
 function rotateScene(deltax, group)
 {
     group.rotation.y += deltax / 100;
-    $("#rotation").html("rotation: 0," + group.rotation.y.toFixed(1) + ",0");
+    $("#rotation").html("rotation: 0," + cubeGroup.rotation.y.toFixed(2) + ",0");
 }
 
 function scaleScene(scale, group)
@@ -13,13 +12,12 @@ function scaleScene(scale, group)
     group.scale.set(scale, scale, scale);
     $("#scale").html("scale: " + scale);
 }
-
+    
 function onMouseMove(evt, group)
 {
     if (!mouseDown)
         return;
-    
-    // The preventDefault() method cancels the event if it is cancelable, meaning that the default action that belongs to the event will not occur.
+
     evt.preventDefault();
     
     let deltax = evt.pageX - pageX;
@@ -44,19 +42,14 @@ function onMouseUp(evt)
 
 function addMouseHandler(canvas, group)
 {
-    canvas.addEventListener( 'mousemove', e => onMouseMove(e, group), false);
+    canvas.addEventListener( 'mousemove', e => onMouseMove(e, group), false );
     canvas.addEventListener( 'mousedown', e => onMouseDown(e), false );
-    canvas.addEventListener( 'mouseup',  e => onMouseUp(e), false );
+    canvas.addEventListener( 'mouseup', e => onMouseUp(e), false );
 
     $("#slider").on("slide", (e, u) => scaleScene(u.value, group));
-   
 }
 
-function addButtonsHandler()
-{   
-    $("#body").on("click", (e) => createBody());
-    $("#satellite").on("click", (e) => createSatellite());
-    $("#clear").on("click", (e) => clearScene());
+function initControls()
+{
+    $("#slider").slider({min: 0.5, max: 2, value: 1, step: 0.01, animate: false});
 }
-
-
