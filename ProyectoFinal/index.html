@@ -1,0 +1,212 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Kurve | Graph Creator</title>
+
+<!-- Materialize Js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<!-- Materialize CSS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<!-- CSS -->
+<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.css" />
+<link rel="stylesheet" href="../libs/colorpicker/css/colorpicker.css"/>
+<link rel="stylesheet" href="../css/threejsshadows.css" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="icon" type="image/png" href="../images/kurve-logo.png" sizes="64x64">
+<!-- Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito">
+
+<!-- Jquery -->
+<script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+<script src="../libs/jquery-ui/jquery-ui.js"></script>
+
+<!-- Three js -->
+<script src="../libs/three.js/three.js"></script>
+<script src="../libs/three.js/controls/OrbitControls.js"></script>
+<script src="../libs/three.js/controls/TransformControls.js"></script>
+<script src="../libs/colorpicker/js/colorpicker.js"></script>
+
+<!-- Three js - Object loaders-->
+<script src="../libs/three.js/loaders/OBJLoader.js"></script>
+<script src="../libs/three.js/utils/promiseLoader.js"></script>
+
+<!-- App Javascripts-->
+<script src="class/orbit.js"></script>
+<script src="class/body.js"></script>
+<script src="util/utils.js"></script>
+<script src="util/sceneHandler.js"></script>
+
+ <!-- All the postprocessing dependencies  -->
+ <script src="../libs/three.js/postProcessing/EffectComposer.js"></script>
+    
+ <script src="../libs/three.js/postProcessing/RenderPass.js"></script>
+
+ <script src="../libs/three.js/postProcessing/CopyShader.js"></script>
+ <script src="../libs/three.js/postProcessing/ShaderPass.js"></script>
+ 
+ <script src="../libs/three.js/postProcessing/LuminosityHighPassShader.js"></script>
+ <script src="../libs/three.js/postProcessing/UnrealBloomPass.js"></script>
+
+
+ <!-- Cannon JS -  Physics -->
+<script src="../libs/cannon.js/cannon.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/physics.js"></script>
+
+
+ <script id="fragmentShader" type="x-shader/x-fragment">
+
+	uniform float time;
+
+	//A sampler is a set of GLSL variable types. Variables of one of the sampler types must be uniforms or as function parameters. Each sampler in a program represents a single texture of a particular texture type.
+	uniform sampler2D noiseTexture;
+	uniform sampler2D glowTexture;
+
+	varying vec2 texCoord;
+
+	void main( void ) 
+	{
+		/*Texture2D - Retrieves texels (i.e. the color) of a texture for the given coordinates.
+		vec4 texture2D(sampler2D sampler, vec2 coord)
+		sampler - specifies the sampler to which the texture from which texels will be retrieved is bound.
+		coord - specifies the texture coordinates at which texture will be sampled.
+		*/
+		vec4 noise = texture2D( noiseTexture, texCoord );
+		
+		vec2 T1 = texCoord + vec2( 1, 1 ) * time;
+		vec2 T2 = texCoord + vec2( -1, 1 ) * time; 
+
+		//vec4 color = texture2D( glowTexture, T2 );
+
+		T1.x += noise.a * 0.6;
+		T1.y += noise.a * 0.6;
+
+		T2.x += noise.r * 0.2;
+		T2.y += noise.r * 0.2;
+		
+		float alpha = texture2D( noiseTexture, T1 ).a ; // * 0.75;
+		
+		vec4 color = texture2D( glowTexture, T2 );
+
+		vec4 newColor = vec4( alpha, alpha, alpha, alpha ) + ( color * color * color );
+		//vec4 newColor = color;
+		
+		gl_FragColor = newColor;
+	}
+
+</script>
+
+<script id="vertexShader" type="x-shader/x-vertex">
+
+	varying vec2 texCoord;
+
+	void main()
+	{
+		texCoord = uv;
+		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+		gl_Position = projectionMatrix * mvPosition;
+	}
+
+</script>
+
+<script type="text/javascript">
+  
+	$(document).ready(
+			function() {
+
+				let canvas = document.getElementById("webglcanvas");
+
+				Game.run();
+    			initControls();
+
+				/*
+
+				// create the scene
+				createScene(canvas);
+
+				// initialize the controls
+				initControls();
+				
+		        // Run the run loop
+				run();
+				
+				*/
+			}
+	);
+
+</script>
+</head>
+
+<body style="background-color: black">
+
+	<nav class="grey darken-4 z-depth-5">
+		<div class="nav-wrapper">
+			<div class="valign-wrapper">
+				<a href="index.html"><img  src="../images/kurve-logo.png" id="logo" class="responsive-img"></a>
+				<a href="#" id="brand-name" class="brand-logo right">KURVE</a>
+				<ul id="nav-mobile" class="left hide-on-med-and-down">
+					<li><a href="sass.html">New Project</a></li>
+					<li><a href="sass.html">Examples</a></li>
+					<li><a href="badges.html">Help</a></li>
+				</ul>
+			</div>
+		</div>
+  	</nav>
+
+    <div class="row center-align" > 
+        <div class="col m10" id="canvas_col" style="height: 100%; z-index: -10; border: 0;"> 
+			<canvas id="webglcanvas" width=1100 height=600 ></canvas>
+			<div id="title">
+				<!--Three.js Shadows-->
+			</div>
+			<div id="prompt">
+				<!--Drag the mouse to rotate the camera<br>Use the scroll wheel to zoom.-->
+			</div>
+		</div>
+		<div class="col m2" id="controls" style="height: 100%; background-color: #1a1919"> 
+			<div id="properties"> 
+				<br><br>
+				<div id="point" class=" colorSelector normal-text">
+					Point Light (Sun)
+					<div style="background-color: #00ff00"></div>
+				</div>
+				<div id="ambient" class=" colorSelector normal-text">
+					Ambient
+					<div style="background-color: #00ff00"></div>
+				</div>
+			</div>
+		</div>
+		
+    </div>
+</body>
+
+<footer class="page-footer  grey darken-4 z-depth-5" style="background-color: #1a1919">
+	<div class="container">
+	  <div class="row">
+		<div class="col l6 s12">
+		  <h5 class="white-text">KURVE - GRAPH CREATOR</h5>
+		  <p class="grey-text text-lighten-4">Created by Daniel Elias</p>
+		</div>
+		<div class="col l4 offset-l2 s12">
+		  <h5 class="white-text">Links</h5>
+		  <ul>
+			<li><a class="grey-text text-lighten-3" href="#!">GitHub</a></li>
+			<li><a class="grey-text text-lighten-3" href="#!">LinkedIn</a></li>
+			<li><a class="grey-text text-lighten-3" href="#!">Email</a></li>
+		  </ul>
+		</div>
+	  </div>
+	</div>
+	<div class="footer-copyright">
+	  <div class="container">
+	  © 2020 Daniel Elias
+	  <a class="grey-text text-lighten-4 right" href="#!"></a>
+	  </div>
+	</div>
+</footer>
+
+</html>
