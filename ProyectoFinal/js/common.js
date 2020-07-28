@@ -34,7 +34,6 @@ Game.run = function () {
     this.renderer.setClearAlpha(0.0) 
     this.renderer.setViewport(0, 0, canvas.width, canvas.height);
 
-    
     /************************************Shadows*************************************** */
     // Turn on shadows
     this.renderer.shadowMap.enabled = true;
@@ -75,7 +74,7 @@ Game.run = function () {
 
     /***********************************Sun Light*********************************** */
     //color, intensity, distance, decay, correct
-    this.pointLight = new THREE.PointLight( 0xffffff, 1.2, 0, 2);
+    this.pointLight = new THREE.PointLight( 0xffffff, 0, 0, 2);
     this.pointLight.position.set( 0, 10, 0 );
     this.root.add( this.pointLight );
     this.pointLight.castShadow = true;
@@ -89,7 +88,7 @@ Game.run = function () {
     this.root.add( pointLightHelper );
 
     /*********************************Ambient Light********************************* */
-    this.ambientLight = new THREE.AmbientLight ( 0x2b2b2b, 0.8);
+    this.ambientLight = new THREE.AmbientLight ( 0xffffff, 0.8);
     this.root.add(this.ambientLight);
 
     // create ground and axis / grid helpers
@@ -142,6 +141,7 @@ Game.textures = {
      texture_url_saturn_ring: "../images/saturnringcolor2.jpg",
      texture_url_uranus_ring: "../images/uranusringcolour.jpg",
      texture_url_nebula: "../images/nebula-2.jpg",
+     texture_url_smiley: "../images/smiley.jpg",
      //Bump maps
      bump_url_mercury: "../images/mercurybump.jpg",
      bump_url_venus: "../images/venusbump.jpg",
@@ -267,6 +267,10 @@ Game.materials = {
 
     asteroid: new THREE.MeshPhongMaterial({
         map: new THREE.TextureLoader().load(Game.textures.texture_url_mercury), 
+    }),
+
+    emoji_smiley: new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load(Game.textures.texture_url_smiley), 
     })
 
 };

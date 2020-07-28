@@ -29,7 +29,7 @@ function initControls()
     $('#point div').css( "background-color", pointHex );
     
     $('#ambient').ColorPicker({
-        color: '#121212',
+        color: '#ffffff',
         onShow: (colpkr) => {
             $(colpkr).fadeIn(500);
             return false;
@@ -49,7 +49,7 @@ function initControls()
             $(el).ColorPickerHide();
         },
     });
-    var ambientHex = "#121212";
+    var ambientHex = "#ffffff";
     $('#ambient').ColorPickerSetColor(ambientHex);
     $('#ambient div').css( "background-color", ambientHex );
 }
