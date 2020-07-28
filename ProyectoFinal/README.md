@@ -1,4 +1,4 @@
-# KURVE - Graph Creator
+# Kurve - Graph Creator
 ### For business, science and creators
 
 ## Technologies:
