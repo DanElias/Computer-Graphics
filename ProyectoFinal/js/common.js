@@ -12,6 +12,37 @@ Game.setLightColor = function (light, r, g, b) {
     light.color.setRGB(r, g, b);
 }
 
+//For the post-processing
+
+
+Game.addEffects = function (){
+    let params = {
+        exposure: 1,
+        bloomStrength: 0.5,
+        bloomRadius: 0.1
+    };
+
+    // First, we need to create an effect composer: instead of rendering to the WebGLRenderer, we render using the composer.
+    this.composer = new THREE.EffectComposer(this.renderer);
+
+    // The effect composer works as a chain of post-processing passes. These are responsible for applying all the visual effects to a scene. They are processed in order of their addition. The first pass is usually a Render pass, so that the first element of the chain is the rendered scene.
+    const renderPass = new THREE.RenderPass(this.scene, this.camera);
+
+    // There are several passes available. Here we are using the UnrealBloomPass.
+    this.bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 0.5, 0.2, 1 );
+    this.bloomPass.threshold = 0.7;
+    this.bloomPass.strength = params.bloomStrength;
+    this.bloomPass.radius = params.bloomRadius;
+
+    this.renderer.toneMappingExposure = Math.pow( params.exposure, 1.0 );
+    
+    // After the passes are configured, we add them in the order we want them.
+    this.composer.addPass(renderPass);
+    this.composer.addPass(this.bloomPass);
+
+    this.composer.render();
+}
+
 Game.run = function () {
 
     this._previousElapsed = 0;
@@ -88,7 +119,7 @@ Game.run = function () {
     this.root.add( pointLightHelper );
 
     /*********************************Ambient Light********************************* */
-    this.ambientLight = new THREE.AmbientLight ( 0xffffff, 0.8);
+    this.ambientLight = new THREE.AmbientLight ( 0xffffff, 1);
     this.root.add(this.ambientLight);
 
     // create ground and axis / grid helpers
@@ -99,6 +130,8 @@ Game.run = function () {
     this.root.add(ground);
     */
     //this.scene.add((new THREE.AxesHelper(5)));
+
+    this.addEffects();
 
     document.addEventListener('keyup', function (event) {
         if (event.keyCode === 27) { // listen for Esc Key
@@ -122,6 +155,7 @@ Game.tick = function (elapsed) {
 
     this.update(delta);
     this.renderer.render(this.scene, this.camera);
+    this.composer.render();
 }.bind(Game);
 
 //Textures
@@ -184,6 +218,14 @@ Game.materials = {
 
     dot: new THREE.MeshBasicMaterial({
         color: 0x0000ff
+    }),
+
+
+    // Create a material with the textures, for each body
+    sun: new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load(Game.textures.texture_url_sun), 
+        emissive: new THREE.TextureLoader().load(Game.textures.texture_url_sun),
+        emissiveIntensity: 10
     }),
 
     
@@ -271,7 +313,23 @@ Game.materials = {
 
     emoji_smiley: new THREE.MeshPhongMaterial({
         map: new THREE.TextureLoader().load(Game.textures.texture_url_smiley), 
-    })
+    }),
+
+    emissive_yellow: new THREE.MeshPhongMaterial({
+        color: 0xff9008, 
+        transparent: false, 
+        opacity: 0.5,
+        emissive: 0xff9008,
+        emissiveIntensity: 0.4,
+    }),
+
+    emissive_blue: new THREE.MeshPhongMaterial({
+        color: 0xff9008, 
+        transparent: true, 
+        opacity: 0.5,
+        emissive: 0xff9008,
+        emissiveIntensity: 0.4,
+    }),
 
 };
 
