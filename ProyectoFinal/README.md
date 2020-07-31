@@ -32,7 +32,7 @@ Graph visualizations ideas include:
 - 3 options of graph visualizations: Simple Graph, Les Miserables Character Connections, Networks.
 
 ## Technical Features:
-- Implementation of the [Eades Force Directed Graph algorithm](http://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf) which treats the graph as mechanical system with springs or electrical forces.
+- Implementation of the [Eades Force Directed Graph algorithm](http://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf) which treats the graph as a mechanical system with springs or electrical forces.
 - The app accepts any kind of json in the format described later on. At the moment the app has only 3 data visualizations.
 - Connected vertices attract each other, while disconnected ones repell one another. All these using the Cannon js physics engine.
 - Light, Shadows and Post-processing effects in scene for more beautiful graphics.
@@ -58,7 +58,7 @@ Graph visualizations ideas include:
 - It also saves the adjacent and non-adjacent vertices of each vertex to be used by the forced directed algorithm
 
 ## JSON Format 
-- for Graph Data in .\data folder
+- for Graph Data in ./data folder
 ```json
 {
     "vertices": [
