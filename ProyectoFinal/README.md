@@ -33,8 +33,8 @@ Graph visualizations ideas include:
 
 ## Technical Features:
 - Implementation of the [Eades Force Directed Graph algorithm](http://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf) which treats the graph as a mechanical system with springs or electrical forces.
-- The app accepts any kind of json in the format described later on. At the moment the app has only 3 data visualizations.
 - Connected vertices attract each other, while disconnected ones repell one another. All these using the Cannon js physics engine.
+- The app accepts any kind of json in the format described later on. At the moment the app has only 3 data visualizations.
 - Light, Shadows and Post-processing effects in scene for more beautiful graphics.
 - Marker Obj Model loaded for each vertex.
 - Interactions with vertices using Three js raycaster.
